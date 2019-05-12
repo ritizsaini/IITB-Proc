@@ -1,0 +1,27 @@
+library ieee;
+use ieee.std_logic_1164.all;
+library work;
+use work.Gates.all;
+entity shift4 is
+port (X: in std_logic_vector(15 downto 0);
+S: in std_logic;
+Y: out std_logic_vector(15 downto 0));
+end entity shift4;
+architecture Easy of shift4 is
+signal a:std_logic;
+signal t1,t2:std_logic_vector(15 downto 0);
+
+component mux is
+port (X: in std_logic_vector(15 downto 0);
+Y: in std_logic_vector(15 downto 0);
+S: in std_logic;
+m_out: out std_logic_vector(15 downto 0));
+end component mux;
+
+begin
+a<=X(15);
+t1<=a&a&a&X(8)&X(7)&X(6)&X(5)&X(4)&X(3)&X(2)&X(1)&X(0)&'0'&'0'&'0'&'0';
+t2<=a&a&a&'0'&'0'&X(10)&X(9)&X(8)&X(7)&X(6)&X(5)&X(4)&X(3)&X(2)&X(1)&X(0);
+p1:mux
+   port map(X=>t2,Y=>t1,S=>S,m_out=>Y);
+end Easy;

@@ -1,0 +1,59 @@
+library std;
+use std.standard.all;
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity ALU is 
+	port( X,Y : in std_logic_vector(15 downto 0);
+		x0,x1 : in std_logic ;
+		C_in: in std_logic;
+		C_out, Z_out: out std_logic;
+		S : out std_logic_vector(15 downto 0));
+end entity;
+
+architecture alu_behave of ALU is
+	signal sig1,sig2,sig3: std_logic_vector(15 downto 0);
+	signal car1, car2 : std_logic;
+
+	component SixteenBitAdder is
+		port(x,y: in std_logic_vector(15 downto 0);
+			z: out std_logic_vector(15 downto 0);
+			car_in: in std_logic;
+			car_out: out std_logic);
+	end component;
+
+	component SixteenBitSub is
+		port(x,y: in std_logic_vector(15 downto 0);
+			z: out std_logic_vector(15 downto 0);
+			bor_in: in std_logic;
+			bor_out: out std_logic);	
+	end component;
+
+	component SixteenBitNand is
+		port(x,y: in std_logic_vector(15 downto 0);
+			z: out std_logic_vector(15 downto 0));
+	end component;
+
+begin
+	a: SixteenBitAdder port map (x => X, y => Y, z => sig1, car_in => C_in, car_out => car1);
+	b: SixteenBitSub port map (x => X, y => Y, z => sig2, bor_in => C_in, bor_out => car2);
+	c: SixteenBitNand port map (x => X, y => Y, z => sig3);
+
+	process (x0, x1, sig1, sig2, sig3, car1, car2)
+	begin
+		if (x0 = '1' and x1 = '1') then
+			S <= sig1; -- ADD operation
+			C_out <= car1;
+			Z_out <= not (sig1(0) or sig1(1) or sig1(2) or sig1(3) or sig1(4) or sig1(5) or sig1(6) or sig1(7) or sig1(8) or sig1(9) or sig1(10) or sig1(11) or sig1(12) or sig1(13) or sig1(14) or sig1(15));
+		elsif (x0 = '1' and x1 = '0') then
+			S <= sig2; -- SUB operation
+			C_out <= car2;
+			Z_out <= not (sig2(0) or sig2(1) or sig2(2) or sig2(3) or sig2(4) or sig2(5) or sig2(6) or sig2(7) or sig2(8) or sig2(9) or sig2(10) or sig2(11) or sig2(12) or sig2(13) or sig2(14) or sig2(15));
+		elsif (x0 = '0' and x1 = '1') then
+			S <= sig3; -- NAND operation
+			C_out <= C_in;
+			Z_out <= not (sig3(0) or sig3(1) or sig3(2) or sig3(3) or sig3(4) or sig3(5) or sig3(6) or sig3(7) or sig3(8) or sig3(9) or sig3(10) or sig3(11) or sig3(12) or sig3(13) or sig3(14) or sig3(15));
+		end if;
+	end process;
+
+end alu_behave;
